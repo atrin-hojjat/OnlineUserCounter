@@ -11,22 +11,25 @@ const socketserver = new WS.Server({noServer:true, clientTracing: false});
 var sockets = new Map(); // Session Id to socket
 var users_in_live = new Map(); // live name to session
 const querystring = require("querystring");
+var online = 0
 
 var sessionParser = session({
 	saveUninitialized: false,
-	secret: "I'm gonna tell you a very important secret of the stars in the night that shine brighter than the light",
+	secret: process.env.SECRET,
 	resave: false
 });
 
 var Login = (req, res) => {
 	let id = req.params.id
-	let live_name = req.body.id
+	let live_name = req.params.live
 
-	const id = uuid.v4();
+	const sid = uuid.v4();
+	console.log(live_name)
+	console.log(id);
 
 	req.session.sessionId = sid;
-	req.session.id = id;
-	req.session.live_name = live_name;
+	req.session.uid = id;
+	req.session.livename = live_name;
 
 	return res.status(200).send({ok: true, message: "Please Upgrade the connection"})
 }
@@ -44,23 +47,25 @@ var Logout = (req, res) => {
 }
 
 var get_data = (req, res) => {
-	let lv = req.param.live_name
+	let lv = req.params.live
 	let out = {online: online, users: []}
-	if(lv == "") {
-		for(key of users_in_live) {
-			for(val of users_in_live.get(key)) {
-				let xx = {id: val.id, sid: val.sid, live_name: key}
+	if(lv) {
+		out.online = 0;
+		let x = users_in_live.get(lv)
+		if(x) for(const val of x) {
+			let zz = {id: val.user, sid: val.sid}
+			out.users.push(zz);
+		}
+		out.online = out.users.length;
+	} else {
+		for(const key of users_in_live) {
+			for(const val of key[1]) {
+				let xx = {id: val.user, sid: val.sid, live_name: key[0]}
 				out.users.push(xx);
 			}
 		}
-	} else {
-		out.online = 0;
-		for(val of users_in_live.get(lv)) {
-			let zz = {id: val.id, sid: val.sid}
-			out.users.push(zz);
-		}
-		out.online = out.users.length();
 	}
+	console.log(out)
 	return res.status(200).send(out)
 }
 
@@ -81,9 +86,10 @@ var start = () => {
 */
 	app.use(sessionParser);
 	app.use(bodyparser.urlencoded({extended: true}));
+	app.use("/", express.static("./static"));
 		
 	//users
-	app.post('/session/login', Login);
+	app.post('/session/login/:live/:id', Login);
 	app.delete('/session/logout', Logout);
 
 
@@ -92,7 +98,8 @@ var start = () => {
 //	app.post('/admin/logout');
 	
 	// Data
-	app.get('/data/:live_name', get_data)
+	app.get('/data/:live', get_data)
+	app.get('/data/', get_data);
 
 	const server = https.createServer(app);
 
@@ -122,17 +129,21 @@ socketserver.on('error' , (err) =>{
 socketserver.on('connection' , (sock, req) => {
 	let sessionId = req.session.sessionId;
 	sockets.set(sessionId, sock);
-	let id = req.session.id
-	let live_name = req.session.live_name
+	let id = req.session.uid
+	let live_name = req.session.livename
+	console.log("upgrading");
+	console.log(id);
+	console.log(live_name);
+	console.log(sessionId);
 
 	online++
-	let SS = {user: id, sid: sessoinId};
+	let SS = {user: id, sid: sessionId};
 
-	let x = users_in_live.get(sessionId)
+	let x = users_in_live.get(live_name)
 	if(x) {
 		x.push(SS);
 	} else {
-		users_in_live.set(sessionId, [req.session]);
+		users_in_live.set(live_name, [SS]);
 	}
 
 	sock.on('message' , (data) =>{
@@ -144,12 +155,12 @@ socketserver.on('connection' , (sock, req) => {
   });
 
 	sock.on('close', () => {
-		let x = users_in_live.get(sessionId)
+		let x = users_in_live.get(live_name)
 		if(x) {
-			let ind = t.indexOf(SS);
+			let ind = x.indexOf(SS);
 			if(SS > -1) x.splice(ind, 1);
 			if(x.length == 0) {
-				users_in_live.delete(sessionId)
+				users_in_live.delete(live_name)
 			}
 		}
 		sockets.delete(sessionId);
