@@ -1,0 +1,70 @@
+<html>
+
+	<head>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+	</head>
+
+	<body>
+		<input id="id" type='text' placeholder="id">
+		<input id="livename" type="text" placeholder="livename">
+		<button onclick="login()"> login </button>
+		<button onclick="logout()"> logout </button>
+		<button onclick="upgrade()"> upgrade </button>
+		<button onclick="close_sock()"> close socket </button>
+		<input id="livedt" type="text" placeholder="Live name">
+		<button onclick="refresh()"> refresh live data </button>
+		<div id="live_data"> </div>
+		<script>
+			var login = () => {
+				$.ajax({
+					method: 'post',
+					url: `/session/login/${$("#livename").val()}/${$("#id").val()}`,
+					success: (res) => {
+						if(res.ok) 
+							alert("Login successful");
+					}
+				})
+			}
+
+			var logout = () => {
+				$.ajax({
+					method:'delete',
+					url: '/session/logout',
+					success: (res) => {
+						if(res.ok)
+							alert("Logout successful");
+					}
+				})
+			}
+
+			var sock;
+			var upgrade = () => {
+				sock = new WebSocket(`ws://${window.location.host}/`);
+				sock.onopen = (data) => {
+					alert("Connetion Established")
+				};
+				sock.onclose = (data) => {
+					alert("Connection Lost");
+				};
+
+			}
+
+			var close_sock = () => {
+				sock.close()
+			}
+
+			var refresh = () => {
+				$.ajax({
+					method: 'get',
+					url: `/data/${$("#livedt").val()}`,
+					success: (res) => {
+						$("#live_data").text(JSON.stringify(res));
+					}
+				})
+			}
+		</script>
+
+	</body>
+
+</html>
+
