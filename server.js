@@ -72,7 +72,7 @@ var get_data = (req, res) => {
 
 var start = () => {
 
-	var whitelist = ['http://localhost:8080', 'http://localhost:8888'] //TODO
+	var whitelist = ['http://localhost:2112', 'http://localhost:2112'] //TODO
 	var corsOptions = {
 		credentials: true,
 		origin: function (origin, callback) {
@@ -104,8 +104,8 @@ var start = () => {
 	app.get('/data/', get_data);
 
 	const server = https.createServer({
-		key: fs.readFileSync('server.key'),
-		cert: fs.readFileSync('server.cert')
+		key: fs.readFileSync('./server.key'),
+		cert: fs.readFileSync('./server.cert')
 	}, app);
 
 	server.on('upgrade', function(req, sock, head) {
@@ -126,7 +126,7 @@ var start = () => {
 		});
 	});
 
-	server.listen({host: "0.0.0.0", port: 8080}, () => {
+	server.listen({host: "0.0.0.0", port: 2112}, () => {
 		console.log("Listening on port 8080...");
 	});
 }

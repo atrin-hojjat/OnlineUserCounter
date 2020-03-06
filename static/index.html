@@ -39,7 +39,7 @@
 
 			var sock;
 			var upgrade = () => {
-				sock = new WebSocket(`ws://${window.location.host}/`);
+				sock = new WebSocket(`wss://${window.location.host}/`);
 				sock.onopen = (data) => {
 					alert("Connetion Established")
 				};
