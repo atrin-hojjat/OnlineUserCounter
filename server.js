@@ -70,9 +70,10 @@ var get_data = (req, res) => {
 }
 
 var start = () => {
-/*
-	var whitelist = ['http://localhost:3000', 'http://localhost:8005']
+
+	var whitelist = ['http://localhost:8080', 'http://localhost:8888'] //TODO
 	var corsOptions = {
+		credentials: true,
 		origin: function (origin, callback) {
 			if (whitelist.indexOf(origin) !== -1) {
 				callback(null, true)
@@ -83,7 +84,7 @@ var start = () => {
 		}
 	}
 	app.use(cors(corsOptions));
-*/
+
 	app.use(sessionParser);
 	app.use(bodyparser.urlencoded({extended: true}));
 	app.use("/", express.static("./static"));
@@ -107,6 +108,9 @@ var start = () => {
 		console.log("Upgrading session");
 
 		sessionParser(req, {}, () => {
+			console.log(req.session.sessionId);
+			console.log(req.session.uid);
+			console.log(req.session.livename);
 			if(!req.session.sessionId) {
 				sock.destroy();
 				return ;

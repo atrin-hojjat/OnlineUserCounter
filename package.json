@@ -1,0 +1,19 @@
+{
+	"name": "counter-server",
+	"version": "0.1.0",
+	"description": "Online user counter",
+	"repository": "https://github.com/atrin-hojjat/OnlineCounterSocket",
+	"license": "GNU GPL V3",
+	"dependencies": {
+		"body-parser": "^1.19.0",
+		"cors": "^2.8.5",
+		"express": "^4.17.1",
+		"express-session": "^1.17.0",
+		"uuid": "^3.4.0",
+		"ws": "^7.2.1"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"start": "node server.js"
+	}
+}
