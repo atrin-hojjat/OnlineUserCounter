@@ -1,5 +1,6 @@
 const express = require('express')
-const https = require('http')
+const https = require('https')
+const fs = require('fs')
 const session = require('express-session');
 const WS = require('ws') ;
 const uuid = require('uuid');
@@ -102,7 +103,10 @@ var start = () => {
 	app.get('/data/:live', get_data)
 	app.get('/data/', get_data);
 
-	const server = https.createServer(app);
+	const server = https.createServer({
+		key: fs.readFileSync('server.key'),
+		cert: fs.readFileSync('server.cert')
+	}, app);
 
 	server.on('upgrade', function(req, sock, head) {
 		console.log("Upgrading session");
