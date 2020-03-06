@@ -162,7 +162,11 @@ socketserver.on('connection' , (sock, req) => {
 		let x = users_in_live.get(live_name)
 		if(x) {
 			let ind = x.indexOf(SS);
-			if(SS > -1) x.splice(ind, 1);
+			if(ind > -1) {
+				x.splice(ind, 1);
+				//console.log(x);
+				//users_in_live.set(live_name, x);
+			}
 			if(x.length == 0) {
 				users_in_live.delete(live_name)
 			}
