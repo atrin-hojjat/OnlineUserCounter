@@ -8,9 +8,13 @@ const bodyparser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
+
 const socketserver = new WS.Server({noServer:true, clientTracing: false});
+
+
 var sockets = new Map(); // Session Id to socket
 var users_in_live = new Map(); // live name to session
+//var users_sessions = new Map();
 const querystring = require("querystring");
 var online = 0
 
@@ -21,12 +25,14 @@ var sessionParser = session({
 });
 
 var Login = (req, res) => {
+	if(req.session.sessionId) {
+		return res.status(200).send({ok: true, message: "already in"});
+	}
 	let id = req.params.id
 	let live_name = req.params.live
+//	let sid = users_sessions.get(id);
 
 	const sid = uuid.v4();
-	console.log(live_name)
-	console.log(id);
 
 	req.session.sessionId = sid;
 	req.session.uid = id;
@@ -39,6 +45,8 @@ var Logout = (req, res) => {
 	let s = sockets.get(req.session.sessionId);
 
 	if(s) s.close();
+	
+//	users_sessions.delete(req.session.uid);
 	
 	sockets.delete(req.session.sessionId);
 	
@@ -134,6 +142,11 @@ var start = () => {
 socketserver.on('error' , (err) =>{
   console.log( err );
 });
+
+function heartbeat() {
+	this.isAlive = true;
+}
+
 socketserver.on('connection' , (sock, req) => {
 	let sessionId = req.session.sessionId;
 	sockets.set(sessionId, sock);
@@ -143,6 +156,11 @@ socketserver.on('connection' , (sock, req) => {
 	console.log(id);
 	console.log(live_name);
 	console.log(sessionId);
+	sock.isAlive = true;
+
+	sock.on('pong', heartbeat) 
+
+	
 
 	online++
 	let SS = {user: id, sid: sessionId};
@@ -154,6 +172,8 @@ socketserver.on('connection' , (sock, req) => {
 		users_in_live.set(live_name, [SS]);
 	}
 
+//	sock.setKeepAlive(true, 10000);
+
 	sock.on('message' , (data) =>{
 
 	});
@@ -163,6 +183,7 @@ socketserver.on('connection' , (sock, req) => {
   });
 
 	sock.on('close', () => {
+console.log("connection dropped");
 		let x = users_in_live.get(live_name)
 		if(x) {
 			let ind = x.indexOf(SS);
@@ -181,4 +202,13 @@ socketserver.on('connection' , (sock, req) => {
   console.log('Client connected') ;
 });
 
+const interval = setInterval(() => {
+	socketserver.clients.forEach((sock) => {
+		console.log(sock.isAlive)
+		if(sock.isAlive === false) return sock.terminate();
+		
+		sock.isAlive = false
+		sock.ping(() => {});
+	})	
+}, 5 * 60 * 1000);
 start();
