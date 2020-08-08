@@ -4,14 +4,8 @@ Simple Online user counter with nodejs and websocket
 
 #Usage
 First of all run `npm install`
-In order to run you need to set an enviromant variable named SECRET and then `npm start`.
-In Linux/Unix/Mac run:
+set the enviorment variables in .env file (SECRET, REFRESH_INTERVAL) and run
 ```
-SECRET=secret npm start
-```
-In windows:
-```
-setx SECRET=secret
 npm start
 ```
 
