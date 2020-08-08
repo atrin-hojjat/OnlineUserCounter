@@ -2,7 +2,7 @@
 Simple Online user counter with nodejs and websocket
 
 
-#Usage
+# Usage
 First of all run `npm install`
 set the enviorment variables in .env file (SECRET, REFRESH_INTERVAL) and run
 ```
