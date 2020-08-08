@@ -6,6 +6,7 @@ const WS = require('ws') ;
 const uuid = require('uuid');
 const bodyparser = require("body-parser");
 const cors = require("cors");
+const dotenv = reqiure("dotenv").config()
 
 const app = express();
 
@@ -210,5 +211,5 @@ const interval = setInterval(() => {
 		sock.isAlive = false
 		sock.ping(() => {});
 	})	
-}, 5 * 60 * 1000);
+}, process.env.REFRESH_INTERVAL);
 start();
