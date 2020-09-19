@@ -81,10 +81,12 @@ var get_data = (req, res) => {
 
 var update_live = (req, res) => {
 	let live = req.params.live;
-	for(const val of (users_in_live.get(live) ?? [])) {
+	let users = users_in_live.get(live) 
+	if(!users) users = []
+	for(const val of users) {
 		let socket = sockets.get(val.sid);
 
-		socket.message("UPDATELIVE");
+		socket.send(JSON.stringify({action: "UPDATE_CHAT"}));
 		
 	}
 
