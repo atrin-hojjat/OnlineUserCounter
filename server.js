@@ -79,6 +79,18 @@ var get_data = (req, res) => {
 	return res.status(200).send(out)
 }
 
+var update_live = (req, res) => {
+	let live = req.params.live;
+	for(const val of (users_in_live.get(live) ?? [])) {
+		let socket = sockets.get(val.sid);
+
+		socket.message("UPDATELIVE");
+		
+	}
+
+	return res.status(200).send({ok: true});
+}
+
 var start = () => {
 
 	var whitelist = ['http://localhost:2112', 'http://localhost:2112'] //TODO
@@ -111,6 +123,7 @@ var start = () => {
 	// Data
 	app.get('/data/:live', get_data)
 	app.get('/data/', get_data);
+	app.post('/update/:live', update_live);
 
 	const server = https.createServer({
 		key: fs.readFileSync('./server.key'),
