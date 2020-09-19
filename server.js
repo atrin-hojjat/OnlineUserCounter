@@ -6,7 +6,7 @@ const WS = require('ws') ;
 const uuid = require('uuid');
 const bodyparser = require("body-parser");
 const cors = require("cors");
-const dotenv = require("dotenv").config()
+const dotenv = reqiure("dotenv").config()
 
 const app = express();
 
@@ -209,6 +209,8 @@ console.log("connection dropped");
 			if(x.length == 0) {
 				users_in_live.delete(live_name)
 			}
+      :wa
+
 		}
 		sockets.delete(sessionId);
 		online--;
