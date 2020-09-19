@@ -1,12 +1,12 @@
 const express = require('express')
-const https = require('https')
+const https = require('http')
 const fs = require('fs')
 const session = require('express-session');
 const WS = require('ws') ;
 const uuid = require('uuid');
 const bodyparser = require("body-parser");
 const cors = require("cors");
-const dotenv = reqiure("dotenv").config()
+const dotenv = require("dotenv").config()
 
 const app = express();
 
@@ -126,8 +126,8 @@ var start = () => {
 	app.post('/update/:live', update_live);
 
 	const server = https.createServer({
-		key: fs.readFileSync('./server.key'),
-		cert: fs.readFileSync('./server.cert')
+		/* key: fs.readFileSync('./server.key'),
+		 * cert: fs.readFileSync('./server.cert') */
 	}, app);
 
 	server.on('upgrade', function(req, sock, head) {
@@ -149,7 +149,7 @@ var start = () => {
 	});
 
 	server.listen({host: "0.0.0.0", port: 2112}, () => {
-		console.log("Listening on port 8080...");
+		console.log("Listening on port 2112...");
 	});
 }
 
@@ -209,7 +209,6 @@ console.log("connection dropped");
 			if(x.length == 0) {
 				users_in_live.delete(live_name)
 			}
-      :wa
 
 		}
 		sockets.delete(sessionId);
